@@ -1,6 +1,10 @@
 package accounts;
 
 import java.io.File;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -46,6 +50,27 @@ public class AccountManager {
 		return pwd;
 	}
 
+	private String getMacAddress() {
+		InetAddress ip;
+		String result = null;
+		try {
+			ip = InetAddress.getLocalHost();
+			NetworkInterface network = NetworkInterface.getByInetAddress(ip);
+
+			byte[] mac = network.getHardwareAddress();
+
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0; i < mac.length; i++) {
+				sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));
+			}
+			result = sb.toString();
+		} catch (UnknownHostException | SocketException e) {
+			e.printStackTrace();
+		}
+
+		return result;
+	}
+
 	public void createAccount(String username, String password) {
 		if (alreadyExist(username)) {
 			return;
@@ -63,7 +88,7 @@ public class AccountManager {
 		db.executeStmt(command);
 	}
 
-	public String login(String username, String password) {
+	public String loginAccount(String username, String password) {
 		boolean correctPassword = password.equals(getPassword(username));
 		if (!correctPassword) {
 			return null;
@@ -73,5 +98,36 @@ public class AccountManager {
 		userTmpId.put(id, username);
 		return id;
 	}
+
+	public boolean hasPurchased(String username) {
+		db = new Database(PATH + username + ".db");
+
+		String command = "SELECT purchased from info WHERE username='" + username + "'";
+		ResultSet rs = db.executeResult(command);
+
+		boolean check = false;
+		try {
+			check = rs.getInt("purchased") == 1;
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+
+		return check;
+	}
+
+	public void purchase(String username, String location) {
+		db = new Database(PATH + username + ".db");
+
+		String command = "CREATE TABLE identifier(hwid text, location text);";
+		db.executeStmt(command);
+
+		String hwid = getMacAddress();
+		command = "INSERT INTO identifier(hwid, location) VALUES('"
+				+ hwid + "', '"
+				+ location + "')";
+		db.executeStmt(command);
+	}
+
+
 
 }
