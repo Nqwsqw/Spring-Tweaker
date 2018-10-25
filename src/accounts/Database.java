@@ -1,9 +1,6 @@
 package accounts;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class Database {
 	private String url;
@@ -30,5 +27,25 @@ public class Database {
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}
+	}
+
+	public void executeStmt(String command) {
+		try {
+			Statement stmt = conn.createStatement();
+			stmt.execute(command);
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+	}
+
+	public ResultSet executeResult(String command) {
+		ResultSet rs = null;
+		try {
+			Statement stmt = conn.createStatement();
+			rs = stmt.executeQuery(command);
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+		return rs;
 	}
 }
