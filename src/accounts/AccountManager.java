@@ -26,6 +26,7 @@ public class AccountManager {
 				id.append(characters.charAt(rand.nextInt(36)));
 			id.append("-");
 		}
+		return id.toString();
 	}
 
 	private String getPassword(String username) {
