@@ -4,10 +4,11 @@ import java.sql.*;
 
 public class Database {
 	private String url;
+	private final String PREFIX = "jdbc:sqlite:";
 	private Connection conn = null;
 
 	public Database(String url) {
-		this.url = "jdbc:sqlite:" + url;
+		this.url = PREFIX + url;
 		connect();
 	}
 
