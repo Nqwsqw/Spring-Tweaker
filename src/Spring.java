@@ -1,22 +1,9 @@
-import accounts.Database;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import accounts.AccountManager;
 
 public class Spring {
     public static void main(String[] args) {
-        Database database = new Database("~/Spring-Tweaker/res/myboiyuitora.db");
-
-        String command = "SELECT * FROM test";
-        ResultSet rs = database.executeResult(command);
-
-        try {
-	        while (rs.next()) {
-				System.out.println(rs.getString("name"));
-	        }
-        } catch (SQLException e) {
-        	System.out.println(e.getMessage());
-        }
+	    AccountManager accountManager = new AccountManager();
+	    System.out.println(accountManager.login("yuitora", "helloworld"));
     }
 }
     

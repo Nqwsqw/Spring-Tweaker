@@ -3,13 +3,14 @@ package accounts;
 import java.io.File;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
 public class AccountManager {
 	Database db;
-	private final String PATH = "~/Spring-Tweaker/res/accounts/";
-	private Map<String, String> userTmpId;
+	private final String PATH = "res/accounts/";
+	private Map<String, String> userTmpId = new HashMap<>();
 	public AccountManager(){}
 
 	private boolean alreadyExist(String username) {
@@ -63,7 +64,7 @@ public class AccountManager {
 	}
 
 	public String login(String username, String password) {
-		boolean correctPassword = password == getPassword(username);
+		boolean correctPassword = password.equals(getPassword(username));
 		if (!correctPassword) {
 			return null;
 		}
