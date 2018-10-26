@@ -1,10 +1,6 @@
 package accounts;
 
 import java.io.File;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -13,7 +9,8 @@ import java.util.Random;
 
 public class AccountManager {
 	Database db;
-	private final String PATH = "res/accounts/";
+	private static final String HOME_PATH = System.getProperty("user.home") + "/Spring-Tweaker/";
+	private final String PATH = HOME_PATH + "res/accounts/";
 	private Map<String, String> userTmpId = new HashMap<>();
 	public AccountManager(){}
 
@@ -50,48 +47,33 @@ public class AccountManager {
 		return pwd;
 	}
 
-	private String getMacAddress() {
-		InetAddress ip;
-		String result = null;
-		try {
-			ip = InetAddress.getLocalHost();
-			NetworkInterface network = NetworkInterface.getByInetAddress(ip);
-
-			byte[] mac = network.getHardwareAddress();
-
-			StringBuilder sb = new StringBuilder();
-			for (int i = 0; i < mac.length; i++) {
-				sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));
-			}
-			result = sb.toString();
-		} catch (UnknownHostException | SocketException e) {
-			e.printStackTrace();
-		}
-
-		return result;
-	}
-
-	public void createAccount(String username, String password) {
+	public boolean createAccount(String username, String password) {
 		if (alreadyExist(username)) {
-			return;
+			return false;
 		}
 
-		db = new Database(PATH + username + ".db");
-		db.create();
+		try {
+			db = new Database(PATH + username + ".db");
+			db.create();
 
-		String command = "CREATE TABLE info(username text, password text, purchased integer);";
-		db.executeStmt(command);
+			String command = "CREATE TABLE info(username text, password text, purchased integer);";
+			db.executeStmt(command);
 
-		command = "INSERT INTO info(username, password, purchased) VALUES ('"
-			+ username + "', '"
-			+ password + "', 0);";
-		db.executeStmt(command);
+			command = "INSERT INTO info(username, password, purchased) VALUES ('"
+					+ username + "', '"
+					+ password + "', 0);";
+			db.executeStmt(command);
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 
 	public String loginAccount(String username, String password) {
 		boolean correctPassword = password.equals(getPassword(username));
 		if (!correctPassword) {
-			return null;
+			return "nulldesu";
 		}
 
 		String id = generateID();
@@ -115,17 +97,22 @@ public class AccountManager {
 		return check;
 	}
 
-	public void purchase(String username, String location) {
-		db = new Database(PATH + username + ".db");
+	public boolean purchase(String username, String hwid, String location) {
+		try {
+			db = new Database(PATH + username + ".db");
 
-		String command = "CREATE TABLE identifier(hwid text, location text);";
-		db.executeStmt(command);
+			String command = "CREATE TABLE identifier(hwid text, location text);";
+			db.executeStmt(command);
 
-		String hwid = getMacAddress();
-		command = "INSERT INTO identifier(hwid, location) VALUES('"
-				+ hwid + "', '"
-				+ location + "')";
-		db.executeStmt(command);
+			command = "INSERT INTO identifier(hwid, location) VALUES('"
+					+ hwid + "', '"
+					+ location + "')";
+			db.executeStmt(command);
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 
 
